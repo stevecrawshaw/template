@@ -38,11 +38,24 @@ npm run dev
 
 Check out the docs for [alternative install methods](https://docs.evidence.dev/getting-started/install-evidence) including Docker, Github Codespaces, and alongside dbt.
 
-
-
 ## Learning More
 
 - [Docs](https://docs.evidence.dev/)
 - [Github](https://github.com/evidence-dev/evidence)
 - [Slack Community](https://slack.evidence.dev/)
 - [Evidence Home Page](https://www.evidence.dev)
+
+## Notes on this dashboard
+
+This is a demo of evidence.dev for WECA.
+The corporate logo is added as a static file in the static folder.
+Data for the map are sourced dynamically from the ONS open geography portal as geojson but could also be stored locally in the /static folder
+
+The javascript source was amended with support from Gemini LLM to be able to ingest data from the open data portal's JSON API. This script is in the sources/ods folder. No visualisation is implemented in this dashboard using this data yet.
+
+The layout was amended to include the corporate logo and the frontmatter yaml dispenses with the evidence.dev sidebar and header.
+
+For the sparklines table the data are pivoted using duckdb syntax. The dashboards seem able to ingest data from views as well as tables.
+
+Color palettes can be set in evidence.config.yaml and work well in charts.
+The html elements support tailwind CSS classes. The default is to use the evidence.dev theme, but this can be overridden in the config file.

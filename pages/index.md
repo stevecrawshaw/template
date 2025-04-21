@@ -146,6 +146,22 @@ Data were sourced from the <Link
     label="UK Department for Business, Energy & Industrial Strategy"
     newTab=true
 />
+<br>
+For full reproducibility and transparency, data have been processed and stored on the <Link 
+    url="https://app.motherduck.com/"
+    label="Motherduck"
+    newTab=true 
+/> cloud database platform. If you have a motherduck account you can access the database with this code:
+<blockquote class="bg-zinc-200"> ATTACH 'md:_share/mca_data/bc76c0aa-3d0e-4a2b-9a78-0c0174087bf8'; </blockquote>
+
+The <Link
+    url="https://evidence.dev/"
+    label="Evidence.dev"
+    newTab=true/> dashboard code is available on <Link 
+    url="https://github.com/stevecrawshaw/template"
+    label="GitHub."
+    newTab=true
+/>
 </Details>
 
 ## Total Emissions by Combined Authority
@@ -245,8 +261,7 @@ title="Combined Authority"/>
   width=800
   height=600
 />
-<!--
-https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Combined_Authorities_May_2023_Boundaries_EN_BSC/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson -->
+
 
 ## Per - capita emissions by Combined Authority
 
