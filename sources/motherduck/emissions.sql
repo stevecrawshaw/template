@@ -1,0 +1,1 @@
+SELECT * FROM ca_emissions_evidence_long_tbl;
