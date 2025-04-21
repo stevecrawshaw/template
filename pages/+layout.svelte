@@ -1,10 +1,10 @@
 <script>
+	import { EvidenceDefaultLayout } from '@evidence-dev/core-components';
 	import '@evidence-dev/tailwind/fonts.css';
 	import '../app.css';
-	import { EvidenceDefaultLayout } from '@evidence-dev/core-components';
 	export let data;
 </script>
 
-<EvidenceDefaultLayout {data}>
+<EvidenceDefaultLayout {data} logo="/logo.svg">
 	<slot slot="content" />
 </EvidenceDefaultLayout>

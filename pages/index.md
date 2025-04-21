@@ -125,29 +125,31 @@ INNER JOIN ${gt_recent} USING (cauthnm)
 
 ```
 
-
-
-
-<Details title='Data sources'>
-
-Data were sourced from the [UK Department for Business, Energy & Industrial Strategy](https://www.gov.uk/government/statistics/uk-local-authority-and-regional-greenhouse-gas-emissions-national-statistics-2005-to-2022)
-</Details>
-
-
-
 <Image 
-    url= {logo}
+    url= {'https://link.assetfile.io/GStAaM21AAeMGlFgY9ub4/Lawrence+Weston+Photos+%281%29.jpg'}
     description="Sample placeholder image"
-    height=80
+    
     border=false
     class="p-4"
     align="left"
-/> 
+/>
+
+## Introduction
+
+This dashboard provides an overview of greenhouse gas emissions data for the Combined Authorities in England. The data are broken down by sector and local authority, allowing for a detailed analysis of emissions trends over time. Per capita emissions are also calculated to provide a more meaningful comparison between areas of different sizes.
+
 
 Data are available for the years <Value data={start_year} fmt='####'/> to <Value data={last_year} fmt='####'/>.  The data are available at the local authority level, and are aggregated to the combined authority level. In this analysis, only the last 10 years of data are used.
+<Details title='Data sources'>
+Data were sourced from the <Link 
+    url="https://www.data.gov.uk/dataset/723c243d-2f1a-4d27-8b61-cdb93e5b10ff/local_authority_carbon_dioxide_emissions"
+    label="UK Department for Business, Energy & Industrial Strategy"
+    newTab=true
+/>
+</Details>
 
-# Total Emissions by Combined Authority
-## Select multiple Combined Authorities to compare
+## Total Emissions by Combined Authority
+### Select multiple Combined Authorities to compare
 
 <Dropdown multiple=true
 data={totals}
@@ -156,7 +158,7 @@ value=cauthnm
 title="Combined Authority"
 defaultValue="West of England"/>
 
-CO<sub>2</sub> Emissions by Combined Authority
+CO<sub>2</sub>e Emissions by Combined Authority
 <BarChart
     data={cauth_select}
     title="Total emissions by year: all sectors"
@@ -170,7 +172,7 @@ CO<sub>2</sub> Emissions by Combined Authority
     height=600 />
 
 
-
+## Overview of emissions by sector (all combined authorities)
 <DataTable 
 data={sparklines_totals}
 rows=all
@@ -200,6 +202,8 @@ value=cauthnm
 defaultValue="West of England"
 title="Combined Authority"/>
 
+<Grid cols=2>
+
 <LineChart
     data={la_totals}
     title="CO2e Emissions by Constituent Local Authority"
@@ -226,6 +230,7 @@ title="Combined Authority"/>
     width=800
     height=600 />
 
+</Grid>
 
 <BarChart
   data={sector_perc}
@@ -258,13 +263,3 @@ Comparison of absolute emissions by area can be challenging due to the different
     height=600
     basemap={`https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}`}/>
 
-
-## What's Next?
-- [Connect your data sources](settings)
-- Edit/add markdown files in the `pages` folder
-- Deploy your project with [Evidence Cloud](https://evidence.dev/cloud)
-
-## Get Support
-- Message us on [Slack](https://slack.evidence.dev/)
-- Read the [Docs](https://docs.evidence.dev/)
-- Open an issue on [Github](https://github.com/evidence-dev/evidence)
