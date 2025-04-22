@@ -32,7 +32,7 @@ theme:
         - "#9C66AB"
         - "#ED8073"
         - "#A6A6A5"
-        - "#FFFFFF"
+        - "#ED749D"
   colors:
     primary:
       light: "#6300a7"  # Plasma Purple

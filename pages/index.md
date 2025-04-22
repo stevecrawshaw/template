@@ -20,16 +20,34 @@ SELECT * FROM ods LIMIT 10
   select
       calendar_year, cauthnm, sum(emissions_kt_co2e) total_emissions_kt_co2e 
   from emissions
-  where sector = 'grand_total'
+  where total_bool
   group by cauthnm, calendar_year
 ```
 
+```sql test
+SELECT 
+--  sector,
+  local_authority,
+  --cauthnm,
+  AVG(grand_total) gt,
+  SUM(emissions_kt_co2e) et
+FROM emissions
+WHERE
+  total_bool AND 
+  cauthnm = 'West of England' AND 
+  local_authority != 'North Somerset'
+  AND calendar_year = 2022
+GROUP BY ALL
+
+```
+
+
 ```sql la_totals
   select
-      calendar_year, local_authority, cauthnm, sum(emissions_kt_co2e) total_emissions_kt_co2e 
+      calendar_year, local_authority, sum(emissions_kt_co2e) total_emissions_kt_co2e 
   from emissions
-  where sector = 'grand_total' AND calendar_year > ${first_year} AND cauthnm = '${inputs.cauth_1.value}'
-  group by cauthnm, calendar_year, local_authority
+  where calendar_year > ${first_year} AND cauthnm = '${inputs.cauth_1.value}' AND total_bool
+  group by calendar_year, local_authority
   -- the inputs need to be quoted when they are a string otherwise sql corrupted
 ```
 
@@ -41,7 +59,15 @@ SELECT * FROM per_cap
 SELECT calendar_year, area cauthnm, per_cap "Per capita emissions (TCO2e pp/pa)" FROM ${per_cap_ca} WHERE calendar_year = ${last_year}
 ```
 
+```sql sectors_not_lulucf
 
+SELECT cauthnm, SUM(emissions_kt_co2e) s_emissions, sector FROM emissions 
+WHERE calendar_year = ${last_year} AND
+  sector != 'lulucf_net_emissions' AND 
+  total_bool
+GROUP BY ALL
+
+```
 
 
 ```sql first_year
@@ -85,7 +111,7 @@ FROM emissions
 WHERE 
   calendar_year > ${first_year} 
   AND 
-  sector LIKE '%_total' AND sector != 'grand_total'
+  total_bool
   AND
   cauthnm = '${inputs.cauth_1.value}'
 GROUP BY ALL
@@ -94,13 +120,10 @@ GROUP BY ALL
 
 ```sql gt_recent
 SELECT cauthnm,
-      SUM(emissions_kt_co2e) AS grand_total_emissions
-FROM emissions
-WHERE 
-  calendar_year = ${last_year} 
-  AND 
-  sector != 'grand_total' AND sector LIKE '%_total'
+      SUM(s_emissions) AS grand_total_emissions
+FROM ${sectors_not_lulucf}
 GROUP BY ALL
+
 ```
 
 
@@ -108,20 +131,19 @@ GROUP BY ALL
 ```sql sector_recent
 SELECT cauthnm,
             split_part(sector, '_tot', 1).replace('_', ' ').regexp_replace('^.', substring(sector, 1, 1).upper()) Sector,
-      SUM(emissions_kt_co2e) AS total_emissions
-FROM emissions
-WHERE 
-  calendar_year = ${last_year} 
-  AND 
-  sector LIKE '%_total' AND sector != 'grand_total'
+      SUM(s_emissions) AS total_emissions
+FROM ${sectors_not_lulucf}
 GROUP BY ALL
+
 ```
 
 ```sql sector_perc
 -- calculate percentage of sector emisisons from grand total emissions
 -- this is a join of the two tables above
-SELECT *, (total_emissions / grand_total_emissions)  Emissions_pct FROM ${sector_recent} 
+SELECT *, (total_emissions / grand_total_emissions)  Emissions_pct 
+FROM ${sector_recent} 
 INNER JOIN ${gt_recent} USING (cauthnm)
+ORDER BY cauthnm, Sector
 
 ```
 
@@ -138,8 +160,10 @@ INNER JOIN ${gt_recent} USING (cauthnm)
 
 This dashboard provides an overview of greenhouse gas emissions data for the Combined Authorities in England. The data are broken down by sector and local authority, allowing for a detailed analysis of emissions trends over time. Per capita emissions are also calculated to provide a more meaningful comparison between areas of different sizes.
 
-
 Data are available for the years <Value data={start_year} fmt='####'/> to <Value data={last_year} fmt='####'/>.  The data are available at the local authority level, and are aggregated to the combined authority level. In this analysis, only the last 10 years of data are used.
+<Note>
+Greenhouse gas emissions include all common climate forcing pollutants, not just carbon dioxide.
+</Note>
 <Details title='Data sources'>
 Data were sourced from the <Link 
     url="https://www.data.gov.uk/dataset/723c243d-2f1a-4d27-8b61-cdb93e5b10ff/local_authority_carbon_dioxide_emissions"
@@ -152,7 +176,7 @@ For full reproducibility and transparency, data have been processed and stored o
     label="Motherduck"
     newTab=true 
 /> cloud database platform. If you have a motherduck account you can access the database with this code:
-<blockquote class="bg-zinc-200"> ATTACH 'md:_share/mca_data/39c2120d-1fe4-4223-a975-79f3ff80dfc7'; </blockquote>
+<blockquote class="bg-zinc-200"> ATTACH 'md:_share/mca_data/f114fbc4-b46f-4dc4-b445-f039f9121946'; </blockquote>
 
 The <Link
     url="https://evidence.dev/"
@@ -162,6 +186,7 @@ The <Link
     label="GitHub."
     newTab=true
 />
+<br> North Somerset is not included in the figures for the West of England Combined Authority.
 </Details>
 
 ## Total Emissions by Combined Authority
@@ -194,19 +219,34 @@ data={sparklines_totals}
 rows=all
 title="Trends by aggregated sector">
 <Column id=cauthnm title="Combined Authority"/>
-<Column id=grand_total_emissions_year
-        title="Grand Total"
-        contentType=sparkline
+<Column id=commercial_total_emissions_year
+        title="Commercial"
+        contentType=sparkarea
         sparkX=year
         sparkY=emissions_kt_co2e
-        interactive=true
+        sparkColor=#590075
+        
         />
-<Column id=transport_total_emissions_year
-        title="Transport"
-        contentType=sparkline
+<Column id=public_sector_total_emissions_year
+        title="Public Sector"
+        contentType=sparkarea
         sparkX=year
         sparkY=emissions_kt_co2e
-        interactive=true
+        sparkColor=#1D4F2B
+        />
+<Column id=domestic_total_emissions_year
+        title="Domestic"
+        contentType=sparkarea
+        sparkX=year
+        sparkY=emissions_kt_co2e
+        sparkColor=#40A832
+        />
+<Column id=industry_total_emissions_year
+        title="Industrial"
+        contentType=sparkarea
+        sparkX=year
+        sparkY=emissions_kt_co2e
+        sparkColor=#CE132D
         />
 </DataTable>
 
@@ -256,7 +296,7 @@ title="Combined Authority"/>
   series=Sector
   colorPalette=wecaPaletteNew
   title="Percentage of Grand Total Emissions by Sector"
-  subtitle="placeholder"
+  subtitle="Land use (LULUCF) emissions are excluded"
   swapXY=true
   width=800
   height=600
@@ -265,7 +305,7 @@ title="Combined Authority"/>
 
 ## Per - capita emissions by Combined Authority
 
-Comparison of absolute emissions by area can be challenging due to the different population sizes and characteristics of the areas. The following map shows per capita emissions for each Combined Authority in the most recent year available (<Value data={last_year} fmt='####'/>).
+Comparison of absolute emissions by area can be challenging due to the different population sizes and characteristics of the areas. The following map shows per capita emissions for each Combined Authority in the  <Value data={last_year} fmt='####'/>.
 
 
 <AreaMap 
