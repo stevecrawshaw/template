@@ -305,7 +305,7 @@ title="Combined Authority"/>
 
 ## Per - capita emissions by Combined Authority
 
-Comparison of absolute emissions by area can be challenging due to the different population sizes and characteristics of the areas. The following map shows per capita emissions for each Combined Authority in the  <Value data={last_year} fmt='####'/>.
+Comparison of absolute emissions by area can be challenging due to the different population sizes and characteristics of the areas. The following map shows per capita emissions for each Combined Authority in <Value data={last_year} fmt='####'/>.
 
 
 <AreaMap 
