@@ -152,7 +152,7 @@ For full reproducibility and transparency, data have been processed and stored o
     label="Motherduck"
     newTab=true 
 /> cloud database platform. If you have a motherduck account you can access the database with this code:
-<blockquote class="bg-zinc-200"> ATTACH 'md:_share/mca_data/bc76c0aa-3d0e-4a2b-9a78-0c0174087bf8'; </blockquote>
+<blockquote class="bg-zinc-200"> ATTACH 'md:_share/mca_data/39c2120d-1fe4-4223-a975-79f3ff80dfc7'; </blockquote>
 
 The <Link
     url="https://evidence.dev/"
