@@ -270,21 +270,18 @@ title="Combined Authority"/>
     yAxisTitle="CO2e Emissions (Kte)"
     series=local_authority
     colorPalette=wecaPaletteNew
-    width=800
-    height=600 />
+     />
 
 <LineChart
     data={sector_totals}
     title="CO2e Emissions by Sector"
-    subtitle="placeholder"
     x=calendar_year
     xFmt="####"
     y=total_emissions
     yAxisTitle="CO2e Emissions (Kte)"
     series=Sector
     colorPalette=wecaPaletteNew
-    width=800
-    height=600 />
+     />
 
 </Grid>
 
