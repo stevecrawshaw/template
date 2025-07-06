@@ -18,10 +18,10 @@ SELECT * FROM ods LIMIT 10
 
 ```sql totals
   select
-      calendar_year, cauthnm, sum(emissions_kt_co2e) total_emissions_kt_co2e 
+      calendar_year, (calendar_year::INTEGER || '-01-01')::DATE "date", cauthnm, sum(emissions_kt_co2e) total_emissions_kt_co2e 
   from emissions
   where total_bool
-  group by cauthnm, calendar_year
+  group by cauthnm, calendar_year, "date"
 ```
 
 ```sql test
@@ -69,6 +69,13 @@ GROUP BY ALL
 
 ```
 
+```sql sectors
+
+SELECT cauthnm, SUM(emissions_kt_co2e) s_emissions, sector FROM emissions 
+WHERE calendar_year = ${last_year} AND total_bool
+GROUP BY ALL
+
+```
 
 ```sql first_year
 SELECT MAX(calendar_year) - 10 AS first_year FROM emissions
@@ -121,7 +128,7 @@ GROUP BY ALL
 ```sql gt_recent
 SELECT cauthnm,
       SUM(s_emissions) AS grand_total_emissions
-FROM ${sectors_not_lulucf}
+FROM ${sectors}
 GROUP BY ALL
 
 ```
@@ -132,7 +139,7 @@ GROUP BY ALL
 SELECT cauthnm,
             split_part(sector, '_tot', 1).replace('_', ' ').regexp_replace('^.', substring(sector, 1, 1).upper()) Sector,
       SUM(s_emissions) AS total_emissions
-FROM ${sectors_not_lulucf}
+FROM ${sectors}
 GROUP BY ALL
 
 ```
@@ -203,7 +210,7 @@ CO<sub>2</sub>e Emissions by Combined Authority
 <BarChart
     data={cauth_select}
     title="Total emissions by year: all sectors"
-    x=calendar_year
+    x=date
     xFmt="YYYY"
     y=total_emissions_kt_co2e
     yAxisTitle="CO2e Emissions (Kte)"
@@ -285,6 +292,7 @@ title="Combined Authority"/>
 
 </Grid>
 
+
 <BarChart
   data={sector_perc}
   x=cauthnm
@@ -293,7 +301,7 @@ title="Combined Authority"/>
   series=Sector
   colorPalette=wecaPaletteNew
   title="Percentage of Grand Total Emissions by Sector"
-  subtitle="Land use (LULUCF) emissions are excluded"
+  subtitle="Land use (LULUCF) emissions can be negative or positive"
   swapXY=true
   width=800
   height=600
@@ -302,7 +310,7 @@ title="Combined Authority"/>
 
 ## Per - capita emissions by Combined Authority
 
-Comparison of absolute emissions by area can be challenging due to the different population sizes and characteristics of the areas. The following map shows per capita emissions for each Combined Authority in <Value data={last_year} fmt='####'/>.
+Comparison of absolute emissions by area can be challenging due to the different population sizes and characteristics of the areas. Per capita emissions can be a fairer comparison metric. The following map shows per capita emissions for each Combined Authority in <Value data={last_year} fmt='####'/>.
 
 
 <AreaMap 
