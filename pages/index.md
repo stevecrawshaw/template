@@ -15,37 +15,29 @@ SELECT * FROM ods LIMIT 10
 
 ```
 
+```sql emissions_ns
+SELECT *
+FROM emissions
+WHERE  ${inputs.include_ns} = TRUE OR local_authority_code != 'E06000024'
+ORDER BY local_authority
 
-```sql totals
-  select
-      calendar_year, (calendar_year::INTEGER || '-01-01')::DATE "date", cauthnm, sum(emissions_kt_co2e) total_emissions_kt_co2e 
-  from emissions
-  where total_bool
-  group by cauthnm, calendar_year, "date"
 ```
 
-```sql test
-SELECT 
---  sector,
-  local_authority,
-  --cauthnm,
-  AVG(grand_total) gt,
-  SUM(emissions_kt_co2e) et
-FROM emissions
-WHERE
-  total_bool AND 
-  cauthnm = 'West of England' AND 
-  local_authority != 'North Somerset'
-  AND calendar_year = 2022
-GROUP BY ALL
 
+```sql totals
+  SELECT
+      calendar_year, (calendar_year::INTEGER || '-01-01')::DATE "date", cauthnm, sum(emissions_kt_co2e) total_emissions_kt_co2e 
+  FROM ${emissions_ns}
+  WHERE 
+    total_bool
+  GROUP BY cauthnm, calendar_year, "date"
 ```
 
 
 ```sql la_totals
   select
       calendar_year, local_authority, sum(emissions_kt_co2e) total_emissions_kt_co2e 
-  from emissions
+  from ${emissions_ns}
   where calendar_year > ${first_year} AND cauthnm = '${inputs.cauth_1.value}' AND total_bool
   group by calendar_year, local_authority
   -- the inputs need to be quoted when they are a string otherwise sql corrupted
@@ -61,7 +53,7 @@ SELECT calendar_year, area cauthnm, per_cap "Per capita emissions (TCO2e pp/pa)"
 
 ```sql sectors_not_lulucf
 
-SELECT cauthnm, SUM(emissions_kt_co2e) s_emissions, sector FROM emissions 
+SELECT cauthnm, SUM(emissions_kt_co2e) s_emissions, sector FROM ${emissions_ns} 
 WHERE calendar_year = ${last_year} AND
   sector != 'lulucf_net_emissions' AND 
   total_bool
@@ -71,7 +63,7 @@ GROUP BY ALL
 
 ```sql sectors
 
-SELECT cauthnm, SUM(emissions_kt_co2e) s_emissions, sector FROM emissions 
+SELECT cauthnm, SUM(emissions_kt_co2e) s_emissions, sector FROM ${emissions_ns} 
 WHERE calendar_year = ${last_year} AND total_bool
 GROUP BY ALL
 
@@ -96,7 +88,7 @@ SELECT * FROM ${totals} WHERE cauthnm IN ${inputs.cauth.value} AND calendar_year
 -- query to create table for sparklines data table of emissions by time and sector for each CA
 WITH piv_stc_tbl AS
 (SELECT cauthnm, sector, MAKE_DATE(calendar_year::INTEGER, 1, 1) calendar_year, SUM(emissions_kt_co2e) AS total_emissions
-FROM emissions
+FROM ${emissions_ns}
 WHERE calendar_year > ${first_year}
 GROUP BY ALL
 ORDER BY ALL)
@@ -114,7 +106,7 @@ SELECT cauthnm,
       calendar_year,
       split_part(sector, '_tot', 1).replace('_', ' ').regexp_replace('^.', substring(sector, 1, 1).upper()) Sector,
       SUM(emissions_kt_co2e) AS total_emissions
-FROM emissions
+FROM ${emissions_ns}
 WHERE 
   calendar_year > ${first_year} 
   AND 
@@ -132,8 +124,6 @@ FROM ${sectors}
 GROUP BY ALL
 
 ```
-
-
 
 ```sql sector_recent
 SELECT cauthnm,
@@ -157,11 +147,9 @@ ORDER BY cauthnm, Sector
 <Image 
     url= {'https://link.assetfile.io/GStAaM21AAeMGlFgY9ub4/Lawrence+Weston+Photos+%281%29.jpg'}
     description="Sample placeholder image"
-    
     border=false
     class="p-4"
-    align="left"
-/>
+    align="left" />
 
 ## Introduction
 
@@ -193,8 +181,17 @@ The <Link
     label="GitHub."
     newTab=true
 />
-<br> North Somerset is not included in the figures for the West of England Combined Authority.
 </Details>
+
+<br> North Somerset is not part of the West of England Combined Authority, but you can include it in the analysis by checking the box below (per - capita map is excluded).
+<p>
+<Checkbox
+  title="Include North Somerset"
+  name="include_ns"
+  checked=false
+  />
+</p>
+
 
 ## Total Emissions by Combined Authority
 ### Select multiple Combined Authorities to compare
@@ -217,7 +214,7 @@ CO<sub>2</sub>e Emissions by Combined Authority
     series=cauthnm
     colorPalette=wecaPaletteNew
     width=800
-    height=600 />
+    height=600/>
 
 
 ## Overview of emissions by sector (all combined authorities)
@@ -231,9 +228,8 @@ title="Trends by aggregated sector">
         contentType=sparkarea
         sparkX=year
         sparkY=emissions_kt_co2e
-        sparkColor=#590075
-        
-        />
+        sparkColor=#590075/>
+
 <Column id=public_sector_total_emissions_year
         title="Public Sector"
         contentType=sparkarea
@@ -276,8 +272,7 @@ title="Combined Authority"/>
     y=total_emissions_kt_co2e
     yAxisTitle="CO2e Emissions (Kte)"
     series=local_authority
-    colorPalette=wecaPaletteNew
-     />
+    colorPalette=wecaPaletteNew/>
 
 <LineChart
     data={sector_totals}
@@ -287,8 +282,7 @@ title="Combined Authority"/>
     y=total_emissions
     yAxisTitle="CO2e Emissions (Kte)"
     series=Sector
-    colorPalette=wecaPaletteNew
-     />
+    colorPalette=wecaPaletteNew/>
 
 </Grid>
 
@@ -304,13 +298,12 @@ title="Combined Authority"/>
   subtitle="Land use (LULUCF) emissions can be negative or positive"
   swapXY=true
   width=800
-  height=600
-/>
+  height=600/>
 
 
 ## Per - capita emissions by Combined Authority
 
-Comparison of absolute emissions by area can be challenging due to the different population sizes and characteristics of the areas. Per capita emissions can be a fairer comparison metric. The following map shows per capita emissions for each Combined Authority in <Value data={last_year} fmt='####'/>.
+Comparison of absolute emissions by area can be challenging due to the different population sizes and characteristics of the areas. Per capita emissions can be a fairer comparison metric. The following map shows per capita emissions for each Combined Authority in <Value data={last_year} fmt='####'/> and **excludes North Somerset**.
 
 
 <AreaMap 

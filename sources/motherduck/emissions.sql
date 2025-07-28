@@ -1,1 +1,1 @@
-SELECT * FROM ca_emissions_evidence_long_tbl WHERE local_authority_code != 'E06000024';
+SELECT * FROM ca_emissions_evidence_long_tbl; -- WHERE local_authority_code != 'E06000024';
