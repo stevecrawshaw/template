@@ -22,10 +22,6 @@ WHERE  ${inputs.include_ns} = TRUE OR local_authority_code != 'E06000024'
 ORDER BY local_authority
 
 ```
-```sql ca
-SELECT * FROM motherduck.calatbl
-```
-
 
 ```sql per_cap_ns
 SELECT 
@@ -35,15 +31,16 @@ SELECT
   -- ,em.local_authority_code
   ,ca.cauthnm
 FROM emissions em
-INNER JOIN calatbl ca
+INNER JOIN ca_la_tbl ca
 ON em.local_authority_code = ca.ladcd
 WHERE  (${inputs.include_ns} = TRUE OR ca.ladcd != 'E06000024')
-AND (em.calendar_year = (SELECT MAX(calendar_year) FROM emissions))
 GROUP BY ALL
 ORDER BY per_cap
-
 ```
 
+```sql per_cap_latest
+SELECT calendar_year, cauthnm, per_cap "Per capita emissions (TCO2e pp/pa)" FROM ${per_cap_ns} WHERE calendar_year = ${last_year}
+```
 
 ```sql totals
   SELECT
@@ -64,13 +61,6 @@ ORDER BY per_cap
   -- the inputs need to be quoted when they are a string otherwise sql corrupted
 ```
 
-```sql per_cap_ca
-SELECT * FROM per_cap
-```
-
-```sql per_cap_latest
-SELECT calendar_year, area cauthnm, per_cap "Per capita emissions (TCO2e pp/pa)" FROM ${per_cap_ca} WHERE calendar_year = ${last_year}
-```
 
 ```sql sectors_not_lulucf
 
@@ -204,7 +194,7 @@ The <Link
 />
 </Details>
 
-<br> North Somerset is not part of the West of England Combined Authority, but you can include it in the analysis by checking the box below (per - capita map is excluded).
+<br> North Somerset is not part of the West of England Combined Authority, but you can include it in the analysis by checking the box below.
 <p>
 <Checkbox
   title="Include North Somerset"
@@ -212,7 +202,6 @@ The <Link
   checked=false
   />
 </p>
-
 
 ## Total Emissions by Combined Authority
 ### Select multiple Combined Authorities to compare
@@ -293,20 +282,24 @@ title="Combined Authority"/>
     y=total_emissions_kt_co2e
     yAxisTitle="CO2e Emissions (Kte)"
     series=local_authority
-    colorPalette=wecaPaletteNew/>
+    colorPalette=wecaPaletteNew
+    chartAreaHeight=400/>
 
 <LineChart
     data={sector_totals}
     title="CO2e Emissions by Sector"
+    subtitle="Total emissions by year: top level sectors"
     x=calendar_year
     xFmt="####"
     y=total_emissions
     yAxisTitle="CO2e Emissions (Kte)"
     series=Sector
-    colorPalette=wecaPaletteNew/>
+    colorPalette=wecaPaletteNew
+    chartAreaHeight=400/>
 
 </Grid>
 
+For the most recent year (<Value data={last_year} fmt='####'/>) the proportions of greenhouse gas arisings from each sector are shown.
 
 <BarChart
   data={sector_perc}
@@ -324,8 +317,25 @@ title="Combined Authority"/>
 
 ## Per - capita emissions by Combined Authority
 
-Comparison of absolute emissions by area can be challenging due to the different population sizes and characteristics of the areas. Per capita emissions can be a fairer comparison metric. The following map shows per capita emissions for each Combined Authority in <Value data={last_year} fmt='####'/> and **excludes North Somerset**.
+Comparison of absolute emissions by area can be challenging due to the different population sizes and characteristics of the areas. Per capita emissions can be a fairer comparison metric. The following map shows per capita emissions for each Combined Authority in <Value data={last_year} fmt='####'/>.
 
+{#if inputs.include_ns}
+
+Combined Authorities with North Somerset included in the West of England area.
+
+<AreaMap 
+    data={per_cap_latest} 
+    areaCol=cauthnm
+    geoJsonUrl='https://opendata.westofengland-ca.gov.uk/api/explore/v2.1/catalog/datasets/cauths_weca_as_lep/exports/geojson?lang=en&timezone=Europe%2FLondon'
+    geoId=cauth24nm
+    value='Per capita emissions (TCO2e pp/pa)'
+    valueFmt='num2'
+    height=600
+    basemap={`https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}`}/>
+
+{:else}
+
+Combined Authorities with North Somerset excluded from the West of England area.
 
 <AreaMap 
     data={per_cap_latest} 
@@ -337,3 +347,4 @@ Comparison of absolute emissions by area can be challenging due to the different
     height=600
     basemap={`https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}`}/>
 
+{/if}

@@ -60,4 +60,6 @@ For the sparklines table the data are pivoted using duckdb syntax. The dashboard
 Color palettes can be set in evidence.config.yaml and work well in charts.
 The html elements support tailwind CSS classes. The default is to use the evidence.dev theme, but this can be overridden in the config file.
 
-When sources change, run the command `npm run sources` to update the data in the dashboard.
+**When sources change, run the command `npm run sources` to update the data in the dashboard.**
+
+The data were updated in July 2025 to reflect the July release of the emissions data from ONS. Functionality was added to allow the selection or deselection of North Somerset in the analysis.
