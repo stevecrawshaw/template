@@ -22,6 +22,10 @@ WHERE  ${inputs.include_ns} = TRUE OR local_authority_code != 'E06000024'
 ORDER BY local_authority
 
 ```
+```sql ca
+SELECT * FROM motherduck.calatbl
+```
+
 
 ```sql per_cap_ns
 SELECT 
@@ -31,7 +35,7 @@ SELECT
   -- ,em.local_authority_code
   ,ca.cauthnm
 FROM emissions em
-INNER JOIN ca_la_tbl ca
+INNER JOIN calatbl ca
 ON em.local_authority_code = ca.ladcd
 WHERE  (${inputs.include_ns} = TRUE OR ca.ladcd != 'E06000024')
 AND (em.calendar_year = (SELECT MAX(calendar_year) FROM emissions))
