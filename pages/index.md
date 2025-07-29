@@ -23,6 +23,23 @@ ORDER BY local_authority
 
 ```
 
+```sql per_cap_ns
+SELECT 
+  SUM(em.grand_total) / SUM(em.population_000s_mid_year_estimate) per_cap
+  ,em.calendar_year
+  -- ,em.local_authority
+  -- ,em.local_authority_code
+  ,ca.cauthnm
+FROM emissions em
+INNER JOIN ca_la_tbl ca
+ON em.local_authority_code = ca.ladcd
+WHERE  (${inputs.include_ns} = TRUE OR ca.ladcd != 'E06000024')
+AND (em.calendar_year = (SELECT MAX(calendar_year) FROM emissions))
+GROUP BY ALL
+ORDER BY per_cap
+
+```
+
 
 ```sql totals
   SELECT

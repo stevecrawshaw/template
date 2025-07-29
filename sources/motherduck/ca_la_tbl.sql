@@ -1,0 +1,1 @@
+SELECT * FROM ca_la_tbl;
